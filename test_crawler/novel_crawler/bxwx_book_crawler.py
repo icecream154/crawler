@@ -1,8 +1,8 @@
 import concurrent
 import concurrent.futures
-from novel_crawler.abstract_book_crawler import AbstractBookCrawler
+from test_crawler.novel_crawler.abstract_book_crawler import AbstractBookCrawler
 from bs4 import BeautifulSoup
-from utils.content_filter import content_filter
+from test_crawler.utils.content_filter import content_filter
 import requests
 
 
@@ -111,6 +111,9 @@ class BxwxBookCrawler(AbstractBookCrawler):
 
         # find the div with content of the novel
         content_div = chapter_html_phrase_soup.find('div', id='content')
+        if content_div is None:
+            print('cid [%d] chapter content not found')
+            return
 
         # content filter
         replace_list = [('    ', '\n    '),
@@ -131,9 +134,9 @@ class BxwxBookCrawler(AbstractBookCrawler):
 
 
 if __name__ == '__main__':
-    for book_index in range(501, 521):
+    for book_index in range(611, 616):
         print('Task %d start:' % book_index)
-        bc = BxwxBookCrawler('https://www.bixiawenxue.org/book_' + str(book_index) + '/', '~/Documents/novs/', 150)
+        bc = BxwxBookCrawler('https://www.bixiawenxue.org/book_' + str(book_index) + '/', '/Users/admin/Documents/novs/', 150)
         if bc.valid:
             bc.crawl_chapter_with_executors()
 
