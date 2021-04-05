@@ -1,18 +1,16 @@
 import requests
 from bs4 import BeautifulSoup
 
+from bxwx_crawling_pj.utils.worker_pool import WorkerPool
 from bxwx_crawling_pj.models.novel_task import BxwxNovelTask
 from bxwx_crawling_pj.models.chapter_task import ChapterTask
-from bxwx_crawling_pj.pipeline.content_fetcher import ContentFetcher
-from concurrent.futures import ThreadPoolExecutor
 
 
 class TaskInitializer:
-    def __init__(self, content_fetcher_pool: ThreadPoolExecutor, content_fetcher: ContentFetcher):
+    def __init__(self, content_fetcher_pool: WorkerPool):
         self.content_fetcher_pool = content_fetcher_pool
-        self.content_fetcher = content_fetcher
 
-    def __call__(self, novel_task: BxwxNovelTask):
+    def deal_task(self, novel_task: BxwxNovelTask):
         try:
             book_root_url = novel_task.book_root_url
             html_text = requests.get(book_root_url).text
@@ -49,7 +47,6 @@ class TaskInitializer:
                 curr_chapter_id += 1
                 # add relative url to the root url and phrase the html text
                 chapter_url = book_root_url + chapter_dd.a.get('href')
-                self.content_fetcher_pool.submit(self.content_fetcher,
-                                                 ChapterTask(curr_chapter_id, book_identification,
+                self.content_fetcher_pool.submit(ChapterTask(curr_chapter_id, book_identification,
                                                              chapter_link.text, chapter_url)
                                                  )

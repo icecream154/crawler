@@ -7,6 +7,7 @@ from bxwx_crawling_pj.models.novel_task import BxwxNovelTask
 from bxwx_crawling_pj.pipeline.content_fetcher import ContentFetcher
 from bxwx_crawling_pj.pipeline.content_processor import ContentProcessor
 from bxwx_crawling_pj.pipeline.data_saver import DataSaver
+from bxwx_crawling_pj.utils.worker_pool import WorkerPool
 
 
 def generate_novel_tasks(start: int, end: int):
@@ -18,25 +19,26 @@ def generate_novel_tasks(start: int, end: int):
 
 if __name__ == '__main__':
 
-    novel_tasks = generate_novel_tasks(1, 1)
+    # init worker pools
+    data_saver_worker_pool = WorkerPool(10, 100, DataSaver('/fakePath'))
+    content_processor_worker_pool = WorkerPool(10, 100, ContentProcessor(data_saver_worker_pool))
 
-    init_pool = ThreadPoolExecutor(max_workers=30)
-    # content_fetcher_pool = ThreadPoolExecutor(max_workers=6)
-    # content_processor_pool = ThreadPoolExecutor(max_workers=6)
-    # data_saver_pool = ThreadPoolExecutor(max_workers=6)
+    content_fetcher = ContentFetcher(None, content_processor_worker_pool)
+    content_fetcher_worker_pool = WorkerPool(10, 100, content_fetcher)
+    content_fetcher.content_fetcher_pool = content_fetcher_worker_pool
 
-    data_saver = DataSaver('/fakePath')
-    # content_processor = ContentProcessor(data_saver_pool, data_saver)
-    # content_fetcher = ContentFetcher(content_fetcher_pool, content_processor_pool, content_processor)
-    # task_initializer = TaskInitializer(content_fetcher_pool, content_fetcher)
-    content_processor = ContentProcessor(init_pool, data_saver)
-    content_fetcher = ContentFetcher(init_pool, init_pool, content_processor)
-    task_initializer = TaskInitializer(init_pool, content_fetcher)
+    task_initializer_worker_pool = WorkerPool(3, 10, TaskInitializer(content_fetcher_worker_pool))
 
-    for novel_task_id in range(len(novel_tasks)):
-        init_pool.submit(task_initializer, novel_tasks[novel_task_id])
+    # start working
+    data_saver_worker_pool.start_working()
+    content_processor_worker_pool.start_working()
+    content_fetcher_worker_pool.start_working()
+    task_initializer_worker_pool.start_working()
 
-    init_pool.shutdown()
+    # submit tasks
+    novel_tasks = generate_novel_tasks(1, 5)
+    for task_id in range(len(novel_tasks)):
+        task_initializer_worker_pool.submit(novel_tasks[task_id])
 
     # with ThreadPoolExecutor(max_workers=3) as init_pool, \
     #         ThreadPoolExecutor(max_workers=6) as content_fetcher_pool, \
