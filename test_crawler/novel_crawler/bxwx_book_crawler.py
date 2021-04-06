@@ -134,7 +134,7 @@ class BxwxBookCrawler(AbstractBookCrawler):
 
 
 if __name__ == '__main__':
-    for book_index in range(611, 616):
+    for book_index in range(630, 641):
         print('Task %d start:' % book_index)
         bc = BxwxBookCrawler('https://www.bixiawenxue.org/book_' + str(book_index) + '/', '/Users/admin/Documents/novs/', 150)
         if bc.valid:

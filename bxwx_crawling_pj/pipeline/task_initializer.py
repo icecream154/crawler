@@ -1,14 +1,17 @@
 import requests
 from bs4 import BeautifulSoup
 
+from bxwx_crawling_pj.pipeline.task_worker import TaskWorker
+from bxwx_crawling_pj.utils.task_tracer import TaskTracer
 from bxwx_crawling_pj.utils.worker_pool import WorkerPool
 from bxwx_crawling_pj.models.novel_task import BxwxNovelTask
 from bxwx_crawling_pj.models.chapter_task import ChapterTask
 
 
-class TaskInitializer:
-    def __init__(self, content_fetcher_pool: WorkerPool):
+class TaskInitializer(TaskWorker):
+    def __init__(self, content_fetcher_pool: WorkerPool, task_tracer: TaskTracer = None):
         self.content_fetcher_pool = content_fetcher_pool
+        self.task_tracer = task_tracer
 
     def deal_task(self, novel_task: BxwxNovelTask):
         try:
@@ -18,7 +21,9 @@ class TaskInitializer:
             book_name = TaskInitializer._get_book_name(phrase_soup)
             book_author = TaskInitializer._get_author_name(phrase_soup)
             book_identification = book_name + '-' + book_author
-            self._submit_resource_fetch_task(phrase_soup, book_root_url, book_identification)
+            chapter_num = self._submit_resource_fetch_task(phrase_soup, book_root_url, book_identification)
+            if self.task_tracer is not None:
+                self.task_tracer.dealt(1, chapter_num)
             print('task [%s] submit success' % book_identification)
         except Exception as ex:
             print(ex)
@@ -50,3 +55,4 @@ class TaskInitializer:
                 self.content_fetcher_pool.submit(ChapterTask(curr_chapter_id, book_identification,
                                                              chapter_link.text, chapter_url)
                                                  )
+        return curr_chapter_id
