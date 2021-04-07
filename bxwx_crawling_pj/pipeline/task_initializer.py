@@ -23,11 +23,13 @@ class TaskInitializer(TaskWorker):
             book_identification = book_name + '-' + book_author
             chapter_num = self._submit_resource_fetch_task(phrase_soup, book_root_url, book_identification)
             if self.task_tracer is not None:
-                self.task_tracer.dealt(1, chapter_num)
+                self.task_tracer.dealt(done_num=1, child_task_num=chapter_num)
             print('task [%s] submit success' % book_identification)
         except Exception as ex:
             print(ex)
             print("task [%s] submit failed" % book_root_url)
+            if self.task_tracer is not None:
+                self.task_tracer.dealt(error_num=1)
 
     @staticmethod
     def _get_book_name(phrase_soup):

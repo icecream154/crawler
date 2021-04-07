@@ -25,12 +25,13 @@ class ContentFetcher(TaskWorker):
                                                            ContentFetcher.get_html_text(chapter_task.chapter_url))
                                                )
             if self.task_tracer is not None:
-                self.task_tracer.dealt(1, 1)
+                self.task_tracer.dealt(done_num=1, error_num=0, child_task_num=1)
         except Exception as ex:
-            print('content [%s] fetch failed ...' % chapter_task.chapter_url)
+            print('content [%s] fetch failed caused by [%s] ...' % (chapter_task.chapter_url, str(ex)))
             chapter_task.current_retry += 1
             if chapter_task.current_retry <= chapter_task.max_retry:
                 print('retry ...')
                 self.content_fetcher_pool.submit(chapter_task)
             else:
                 print('too many retries ...')
+                self.task_tracer.dealt(done_num=0, error_num=1, child_task_num=0)  # deal one and no sub task generated

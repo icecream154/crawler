@@ -13,10 +13,9 @@ class DataSaver(TaskWorker):
         # print('cid:[%d] - chapter [%s] of book [%s] saved in [%s]' %
              # (save_task.chapter_id, save_task.chapter_name, save_task.book_identification, self.save_path))
         #print('content [%s] ...' % save_task.processed_chapter_content[0: 15])
-
-        if save_task.chapter_id % 100 == 0:
+        if save_task.chapter_id % 400 == 0:
             print('cid:[%d] - chapter [%s] of book [%s] saved in [%s]' %
                     (save_task.chapter_id, save_task.chapter_name, save_task.book_identification, self.save_path))
 
         if self.task_tracer is not None:
-            self.task_tracer.dealt(1)
+            self.task_tracer.dealt(done_num=1)

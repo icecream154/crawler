@@ -19,7 +19,7 @@ class ContentProcessor(TaskWorker):
                                     )
 
         if self.task_tracer is not None:
-            self.task_tracer.dealt(1, 1)
+            self.task_tracer.dealt(done_num=1, child_task_num=1)
 
     @staticmethod
     def _process_content(book_name: str, chapter_content: str):
