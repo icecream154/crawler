@@ -76,6 +76,6 @@ if __name__ == '__main__':
                content_processor_tracer.child_task_num))
 
     if data_saver_tracer.all_done():
-        print('all data saving tasks %d done' % data_saver_tracer.done_task_num)
+        print('all data saving tasks [%d] done' % data_saver_tracer.done_task_num)
 
     sys.exit(0)
