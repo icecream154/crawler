@@ -1,3 +1,5 @@
+from bs4 import BeautifulSoup
+
 from bxwx_crawling_pj.models.process_task import ProcessTask
 from bxwx_crawling_pj.models.save_task import SaveTask
 from bxwx_crawling_pj.pipeline.task_worker import TaskWorker
@@ -13,19 +15,29 @@ class ContentProcessor(TaskWorker):
 
     def deal_task(self, process_task: ProcessTask):
         book_name = process_task.book_identification.split('-')[0]
-        self.data_saver_pool.submit(SaveTask(process_task.chapter_id, process_task.book_identification,
-                                             process_task.chapter_name,
-                                             ContentProcessor._process_content(book_name, process_task.chapter_content))
-                                    )
-
-        if self.task_tracer is not None:
-            self.task_tracer.dealt(done_num=1, child_task_num=1)
+        processed_content = ContentProcessor._process_content(book_name, process_task.chapter_content)
+        if processed_content is not None:
+            self.data_saver_pool.submit(SaveTask(process_task.chapter_id, process_task.book_identification,
+                                                 process_task.chapter_name, processed_content)
+                                        )
+            if self.task_tracer is not None:
+                self.task_tracer.dealt(done_num=1, child_task_num=1)
+        else:
+            if self.task_tracer is not None:
+                self.task_tracer.dealt(error_num=1)
 
     @staticmethod
     def _process_content(book_name: str, chapter_content: str):
+        chapter_html_phrase_soup = BeautifulSoup(chapter_content, 'lxml')
+
+        # find the div with content of the novel
+        content_div = chapter_html_phrase_soup.find('div', id='content')
+        if content_div is None:
+            print('cid [%d] chapter content not found')
+            return None
         replace_list = [('    ', '\n    '),
                         ('笔下文学网 www.bixiawenxue.org，最快更新' + book_name + '最新章节！', '\n')]
-        filtered_content = ContentProcessor._content_filter(chapter_content, replace_list)
+        filtered_content = ContentProcessor._content_filter(content_div.text, replace_list)
         return filtered_content
 
     @staticmethod
