@@ -18,10 +18,13 @@ class ContentFetcher(TaskWorker):
     def get_html_text(url, timeout=12):
         return requests.get(url, timeout=timeout).text
 
+    def done_task(self):
+        pass
+
     def deal_task(self, chapter_task: ChapterTask):
         try:
-            self.content_processor_pool.submit(ProcessTask(chapter_task.chapter_id, chapter_task.book_identification,
-                                                           chapter_task.chapter_name,
+            self.content_processor_pool.submit(ProcessTask(chapter_task.chapter_id, chapter_task.book_name,
+                                                           chapter_task.book_author, chapter_task.chapter_name,
                                                            ContentFetcher.get_html_text(chapter_task.chapter_url))
                                                )
             if self.task_tracer is not None:

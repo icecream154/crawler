@@ -1,5 +1,7 @@
 from threading import Semaphore
 
+from bxwx_crawling_pj.pipeline.task_worker import TaskWorker
+
 
 class TaskPool:
     def __init__(self, max_capacity: int):
@@ -20,7 +22,7 @@ class TaskPool:
         self.task_count_sema.release()
 
 
-def register_worker(task_pool: TaskPool, worker):
+def register_worker(task_pool: TaskPool, worker: TaskWorker):
     while True:
         task = task_pool.fetch()
         worker.deal_task(task)

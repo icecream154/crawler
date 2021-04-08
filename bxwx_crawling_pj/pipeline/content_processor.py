@@ -13,12 +13,15 @@ class ContentProcessor(TaskWorker):
         self.data_saver_pool = data_saver_pool
         self.task_tracer = task_tracer
 
+    def done_task(self):
+        pass
+
     def deal_task(self, process_task: ProcessTask):
         book_name = process_task.book_identification.split('-')[0]
         processed_content = ContentProcessor._process_content(book_name, process_task.chapter_content)
         if processed_content is not None:
-            self.data_saver_pool.submit(SaveTask(process_task.chapter_id, process_task.book_identification,
-                                                 process_task.chapter_name, processed_content)
+            self.data_saver_pool.submit(SaveTask(process_task.chapter_id, process_task.book_name,
+                                                 process_task.book_author, process_task.chapter_name, processed_content)
                                         )
             if self.task_tracer is not None:
                 self.task_tracer.dealt(done_num=1, child_task_num=1)

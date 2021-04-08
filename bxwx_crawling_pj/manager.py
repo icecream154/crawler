@@ -23,17 +23,17 @@ if __name__ == '__main__':
     # data_saver
     data_saver_tracer = TaskTracer()
     data_saver = DataSaver('/fakePath', data_saver_tracer)
-    data_saver_worker_pool = WorkerPool(10, 1000, data_saver, is_daemon=True)
+    data_saver_worker_pool = WorkerPool(20, 1000, data_saver, is_daemon=True)
 
     # content_processor
     content_processor_tracer = TaskTracer([data_saver_tracer])
     content_processor = ContentProcessor(data_saver_worker_pool, content_processor_tracer)
-    content_processor_worker_pool = WorkerPool(10, 1000, content_processor, is_daemon=True)
+    content_processor_worker_pool = WorkerPool(40, 2000, content_processor, is_daemon=True)
 
     # content_fetcher
     content_fetcher_tracer = TaskTracer([content_processor_tracer])
     content_fetcher = ContentFetcher(None, content_processor_worker_pool, content_fetcher_tracer)
-    content_fetcher_worker_pool = WorkerPool(400, 1000, content_fetcher, is_daemon=True)
+    content_fetcher_worker_pool = WorkerPool(600, 2000, content_fetcher, is_daemon=True)
     content_fetcher.content_fetcher_pool = content_fetcher_worker_pool
 
     # task_initializer
@@ -42,7 +42,7 @@ if __name__ == '__main__':
     task_initializer_worker_pool = WorkerPool(20, 100, task_initializer, is_daemon=True)
 
     # submit tasks
-    novel_tasks = generate_novel_tasks(81, 85)
+    novel_tasks = generate_novel_tasks(101, 120)
     task_initializer.task_tracer.set_total_task_num(len(novel_tasks))
 
     for task_id in range(task_initializer_worker_pool.task_pool.max_capacity

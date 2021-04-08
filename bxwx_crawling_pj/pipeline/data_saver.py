@@ -5,17 +5,15 @@ from bxwx_crawling_pj.utils.task_tracer import TaskTracer
 
 class DataSaver(TaskWorker):
 
-    def __init__(self, save_path: str, task_tracer: TaskTracer = None):
-        self.save_path = save_path
+    def __init__(self, task_tracer: TaskTracer = None):
         self.task_tracer = task_tracer
 
     def deal_task(self, save_task: SaveTask):
-        # print('cid:[%d] - chapter [%s] of book [%s] saved in [%s]' %
-             # (save_task.chapter_id, save_task.chapter_name, save_task.book_identification, self.save_path))
-        #print('content [%s] ...' % save_task.processed_chapter_content[0: 15])
-        if save_task.chapter_id % 400 == 0:
-            print('cid:[%d] - chapter [%s] of book [%s] saved in [%s]' %
-                    (save_task.chapter_id, save_task.chapter_name, save_task.book_identification, self.save_path))
+        print('cid:[%d] - chapter [%s] of book [%s] saved' %
+                (save_task.chapter_id, save_task.chapter_name, save_task.book_identification))
 
         if self.task_tracer is not None:
             self.task_tracer.dealt(done_num=1)
+
+    def done_task(self):
+        pass

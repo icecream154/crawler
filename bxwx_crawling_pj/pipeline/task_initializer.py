@@ -9,6 +9,7 @@ from bxwx_crawling_pj.models.chapter_task import ChapterTask
 
 
 class TaskInitializer(TaskWorker):
+
     def __init__(self, content_fetcher_pool: WorkerPool, task_tracer: TaskTracer = None):
         self.content_fetcher_pool = content_fetcher_pool
         self.task_tracer = task_tracer
@@ -21,7 +22,7 @@ class TaskInitializer(TaskWorker):
             book_name = TaskInitializer._get_book_name(phrase_soup)
             book_author = TaskInitializer._get_author_name(phrase_soup)
             book_identification = book_name + '-' + book_author
-            chapter_num = self._submit_resource_fetch_task(phrase_soup, book_root_url, book_identification)
+            chapter_num = self._submit_resource_fetch_task(phrase_soup, book_root_url, book_name, book_author)
             if self.task_tracer is not None:
                 self.task_tracer.dealt(done_num=1, child_task_num=chapter_num)
             print('task [%s] submit success' % book_identification)
@@ -30,6 +31,9 @@ class TaskInitializer(TaskWorker):
             print("task [%s] submit failed" % book_root_url)
             if self.task_tracer is not None:
                 self.task_tracer.dealt(error_num=1)
+
+    def done_task(self):
+        pass
 
     @staticmethod
     def _get_book_name(phrase_soup):
@@ -43,7 +47,7 @@ class TaskInitializer(TaskWorker):
         book_author = book_meta_data[1]
         return book_author
 
-    def _submit_resource_fetch_task(self, phrase_soup, book_root_url, book_identification):
+    def _submit_resource_fetch_task(self, phrase_soup, book_root_url: str, book_name: str, book_author: str):
         # find all chapters
         chapter_list_dl = phrase_soup.find('dl', class_='zjlist')
         curr_chapter_id = 0
@@ -54,7 +58,7 @@ class TaskInitializer(TaskWorker):
                 curr_chapter_id += 1
                 # add relative url to the root url and phrase the html text
                 chapter_url = book_root_url + chapter_dd.a.get('href')
-                self.content_fetcher_pool.submit(ChapterTask(curr_chapter_id, book_identification,
+                self.content_fetcher_pool.submit(ChapterTask(curr_chapter_id, book_name, book_author,
                                                              chapter_link.text, chapter_url)
                                                  )
         return curr_chapter_id
