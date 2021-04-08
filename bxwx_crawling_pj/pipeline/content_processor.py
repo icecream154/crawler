@@ -13,9 +13,6 @@ class ContentProcessor(TaskWorker):
         self.data_saver_pool = data_saver_pool
         self.task_tracer = task_tracer
 
-    def done_task(self):
-        pass
-
     def deal_task(self, process_task: ProcessTask):
         book_name = process_task.book_identification.split('-')[0]
         processed_content = ContentProcessor._process_content(book_name, process_task.chapter_content)

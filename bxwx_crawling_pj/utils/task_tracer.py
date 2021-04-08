@@ -4,9 +4,9 @@ from threading import Lock, RLock
 class TaskTracer:
     """ A tracer to trace the situation of completion of some tasks
 
-    You can register a list sub tracers when you initialize this tracer
-    so that this tracer can automatically inform all sub tracers the total
-    number of tasks these sub tracers are tracing when all tasks traced by
+    You can register a list sub tracers when you initialize a tracer
+    so that this tracer can automatically inform all sub tracers of the total
+    number of sub tasks these sub tracers are tracing when all tasks traced by
     this tracer are done.
     
     Attributes:

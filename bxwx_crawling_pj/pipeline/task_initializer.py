@@ -5,7 +5,7 @@ from bxwx_crawling_pj.pipeline.task_worker import TaskWorker
 from bxwx_crawling_pj.utils.task_tracer import TaskTracer
 from bxwx_crawling_pj.utils.worker_pool import WorkerPool
 from bxwx_crawling_pj.models.novel_task import BxwxNovelTask
-from bxwx_crawling_pj.models.chapter_task import ChapterTask
+from bxwx_crawling_pj.models.fetch_task import FetchTask
 
 
 class TaskInitializer(TaskWorker):
@@ -32,9 +32,6 @@ class TaskInitializer(TaskWorker):
             if self.task_tracer is not None:
                 self.task_tracer.dealt(error_num=1)
 
-    def done_task(self):
-        pass
-
     @staticmethod
     def _get_book_name(phrase_soup):
         book_meta_data = phrase_soup.find('div', id='info').h1.text.split(' / ')
@@ -58,7 +55,7 @@ class TaskInitializer(TaskWorker):
                 curr_chapter_id += 1
                 # add relative url to the root url and phrase the html text
                 chapter_url = book_root_url + chapter_dd.a.get('href')
-                self.content_fetcher_pool.submit(ChapterTask(curr_chapter_id, book_name, book_author,
-                                                             chapter_link.text, chapter_url)
+                self.content_fetcher_pool.submit(FetchTask(curr_chapter_id, book_name, book_author,
+                                                           chapter_link.text, chapter_url)
                                                  )
         return curr_chapter_id

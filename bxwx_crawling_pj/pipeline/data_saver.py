@@ -11,6 +11,7 @@ class DataSaver(TaskWorker):
     def deal_task(self, save_task: SaveTask):
         print('cid:[%d] - chapter [%s] of book [%s] saved' %
                 (save_task.chapter_id, save_task.chapter_name, save_task.book_identification))
+        print(save_task.processed_chapter_content)
 
         if self.task_tracer is not None:
             self.task_tracer.dealt(done_num=1)
