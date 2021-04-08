@@ -6,6 +6,9 @@ from bxwx_crawling_pj.utils.task_pool import register_worker
 
 
 class WorkerPool:
+    """ A worker pool can set up a bunch of threads as workers to deal tasks in a specified task pool
+
+    """
     def __init__(self, max_workers: int, max_task_capacity: int, worker: TaskWorker, is_daemon: bool = False):
         self.is_daemon = is_daemon
         self.max_workers = max_workers

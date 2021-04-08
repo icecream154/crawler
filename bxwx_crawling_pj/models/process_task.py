@@ -1,4 +1,7 @@
-class ProcessTask:
+from bxwx_crawling_pj.models.task import AbstractTask
+
+
+class ProcessTask(AbstractTask):
     def __init__(self, chapter_id: int, book_name: str, book_author: str, chapter_name: str, chapter_content: str):
         self.chapter_id = chapter_id
         self.book_name = book_name
